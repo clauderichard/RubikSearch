@@ -1,2 +1,2 @@
 # RubikSearch
-A Julia module to search for Rubik's cube algorithms
+Some Julia modules to search for Rubik's cube algorithms
