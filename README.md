@@ -122,3 +122,21 @@ Done layeredAlgs! Their number is 21.
  234 F CW Twice
  234 L CCW
 ```
+
+## Searching method
+
+Here is a general description of how the program searches for Rubik's cube algorithms.
+
+Every algorithm performs some permutation on the cube. You can think of it in terms of a permutation of squares (on a 3x3x3 cube there are 6 faces with 3x3 = 9 squares on each face for a total of 54 squares, so each algorithm is associated with a permutation of the numbers 1 through 54), or in terms of pieces (there are 3x3x3 - 1 = 26 pieces on a 3x3x3 cube) with the possibility to flip edge pieces and rotate corner pieces. In any case, we will think broadly in terms of permutations of numbers.
+
+We are looking for algorithms that leave a certain set of pieces in place. For 4x4x4 last layer algorithms, all the pieces in the bottom 3 layers must stay in place, and for 2x2x2 algorithms only affecting 2 pieces the other 6 pieces must stay in place. In other words, we are looking for algorithms for which the permutation leaves a specified subset of the numbers intact.
+
+Now say we want to find all the desired algorithms of N moves or less, and the number of choices for each move is M. For example, in a 3x3x3 cube each move is a rotation of a face, either clockwise, counterwise, or 180 degree, so that M = 6x3 = 18. A brute force solution would be to generate all the possible algorithms (all combinations of N moves or less, which makes a list of M^N algorithms) and then filter according to which algorithms keep the specified subset of numbers intact. But this is very inefficient, and searching for 4x4x4 last-layer algorithms this way has proven to take a very long time.
+
+Another solution involves thinking about an algorithm as a combination of two half-algorithms. If a full algorithm keeps a certain subset of numbers intact, then it must be that its first half pushes these numbers to some other locations, and the second half pulls all these numbers back to their original locations. Now suppose you have two half-algorithms A and B, and each of them pushes the subset of numbers to the same locations. Then you can generate a full algorithm by saying "do A, then reverse B in time". So doing A will push the subset of numbers to some locations, and then reversing B in time will pull the pieces back to their original locations. The other numbers (that aren't included in the specified subset, so they represent the last layer for example) might be permuted among each other, which is what we want in a full algorithm.
+
+So to find desired algorithms of 2N moves or less, we start by only generating all algorithms of N moves or less (the possible half-algorithms). Then we group the list of half-algorithms according to where they send the specified subset of numbers (in the program this involves sorting arrays according to only a subset of their elements). Then we know that in order to get a desired full algorithm by combining two half-algorithms as above, we must choose the two half-algorithms from the same group. So the program loops through the groups, and within each group it generates all possible pairs of two half-algorithms, and combines them to make a desired full algorithm.
+
+This method has proven to be more efficient. We generate M^N half-algorithms, and sorting (mergesort) takes O(M^N * log(M^N)) = O(M^N * N * log(M)) which isn't too bad. Whereas the brute force method would take O(M^2N) to generate all possible algorithms.
+
+The resulting list of desired full algorithms is filtered for some kinds of duplicates (sometimes one algorithm is just the mirror image of another for example), and the filtered list is then printed to the console.
